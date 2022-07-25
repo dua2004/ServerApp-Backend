@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import rizzu82.com.infraserverinventory.enumeration.Status;
+import rizzu82.com.infraserverinventory.exception.ServerNotFoundException;
+import rizzu82.com.infraserverinventory.model.Response;
 import rizzu82.com.infraserverinventory.model.Server;
 import rizzu82.com.infraserverinventory.repo.ServerRepo;
 import rizzu82.com.infraserverinventory.service.ServerService;
@@ -17,7 +20,11 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
+
+import static java.time.LocalDateTime.now;
+import static org.springframework.http.HttpStatus.OK;
 
 @RequiredArgsConstructor
 @Service
@@ -44,7 +51,7 @@ public class ServerServiceImp implements ServerService {
     }
 
     @Override
-    public Collection<Server> list(int limit) {
+    public List<Server> list(int limit) {
         log.info("find all server limit : {}",limit);
         return serverRepo.findAll(PageRequest.of(0,limit)).toList();
     }
@@ -52,7 +59,7 @@ public class ServerServiceImp implements ServerService {
     @Override
     public Server get(Long id) {
         log.info("find server by id : {}",id);
-        return serverRepo.findById(id).orElse(null);
+        return serverRepo.findById(id).orElseThrow(() -> new ServerNotFoundException(id));
     }
 
     @Override
@@ -66,18 +73,6 @@ public class ServerServiceImp implements ServerService {
         log.info("deleting server by ID : {}",id);
         serverRepo.deleteById(id);
         return true;
-    }
-
-    @Override
-    public Boolean findServerByIPAddress(String ipAddress) {
-        log.info("finding server by IP: {}",ipAddress);
-        Server server = serverRepo.findByIpAddress(ipAddress);
-        if(server !=null && server.getIpAddress().equals(ipAddress)) {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 
     private String setServerImageUrl() {

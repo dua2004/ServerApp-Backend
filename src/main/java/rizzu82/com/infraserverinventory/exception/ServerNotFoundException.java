@@ -6,9 +6,4 @@ public class ServerNotFoundException extends RuntimeException {
 
         super(String.format("Server with Id %d not found", id));
     }
-
-    public ServerNotFoundException(String ipAddress) {
-
-        super(String.format("Server with IP Address %d not found", ipAddress));
-    }
 }

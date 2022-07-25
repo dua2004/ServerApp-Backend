@@ -34,29 +34,21 @@ public class ServerResource {
     private final ServerService serverService;
     @Value("${app.imageBasePath}")
     private String imageBasePath;
-
     @GetMapping("/list")
-    public Collection<Server> getServers(){
-        return serverService.list(30);
+    public List<Server> getServers(){
+      return serverService.list(30);
     }
-
     @GetMapping("/ping/{ipAddress}")
-    public Server pingServer(@PathVariable("ipAddress") String ipAddress) throws IOException {
+    public Server pingServer(@PathVariable("ipAddress") @Valid String ipAddress) throws IOException {
         return serverService.ping(ipAddress);
     }
 
     @PostMapping("/save")
     public Server saveServer(@RequestBody @Valid Server server)  {
-       return serverService.create(server);
+        return serverService.create(server);
     }
-
     @GetMapping("/get/{id}")
     public Server getServer(@PathVariable("id") @Valid Long id)  {
-        return serverService.get(id);
-    }
-
-    @GetMapping("/getServerById/{id}")
-    public Server getServerById(@PathVariable("id") @Valid Long id)  {
         return serverService.get(id);
     }
 
@@ -64,12 +56,11 @@ public class ServerResource {
     public boolean deleteServer(@PathVariable("id") Long id)  {
         return serverService.delete(id);
     }
-
     @PutMapping("/update")
-    public Server updateServer(@RequestBody @Valid Server server)  {
-        return serverService.update(server);
+    public ResponseEntity<Server> updateServer(@RequestBody @Valid Server server)  {
+        var data = serverService.update(server);
+        return ResponseEntity.ok(data);
     }
-
     @GetMapping(path = "/image/{fileName}",produces = IMAGE_JPEG_VALUE)
     public byte[] getServerImage(@PathVariable("fileName") String fileName) throws IOException {
         var path = Paths.get(imageBasePath + "/" + fileName);
