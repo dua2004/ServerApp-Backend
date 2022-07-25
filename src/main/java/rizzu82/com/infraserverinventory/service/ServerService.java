@@ -14,4 +14,5 @@ public interface ServerService {
     Server update(Server server);
     Boolean delete(Long id);
     Boolean findServerByIPAddress(String ipAddress);
+
 }

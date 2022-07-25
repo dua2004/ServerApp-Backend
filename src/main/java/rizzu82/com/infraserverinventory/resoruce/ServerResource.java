@@ -8,18 +8,24 @@ import rizzu82.com.infraserverinventory.enumeration.Status;
 import rizzu82.com.infraserverinventory.model.Response;
 import rizzu82.com.infraserverinventory.model.Server;
 import rizzu82.com.infraserverinventory.service.ServerService;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,71 +36,38 @@ public class ServerResource {
     private String imageBasePath;
 
     @GetMapping("/list")
-    public ResponseEntity<Response> getServers(){
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(now())
-                        .data(Map.of("servers",serverService.list(30)))
-                        .message("Servers retrieve")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build()
-        );
+    public Collection<Server> getServers(){
+        return serverService.list(30);
     }
 
     @GetMapping("/ping/{ipAddress}")
-    public ResponseEntity<Response> pingServer(@PathVariable("ipAddress") String ipAddress) throws IOException {
-        Server server = serverService.ping(ipAddress);
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(now())
-                        .data(Map.of("server",server))
-                        .message(server.getStatus() == Status.SERVER_UP ? "Ping Success" : "Ping failed")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build()
-        );
+    public Server pingServer(@PathVariable("ipAddress") String ipAddress) throws IOException {
+        return serverService.ping(ipAddress);
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Response> saveServer(@RequestBody @Valid Server server)  {
-        boolean IsServerExist = serverService.findServerByIPAddress(server.getIpAddress());
-
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(now())
-                        .data(Map.of("server",!IsServerExist ? serverService.create(server) : server))
-                        .message(!IsServerExist ? "server is added successfully" : "Server with ipAddress is already exists")
-                        .status(!IsServerExist ? CREATED : BAD_REQUEST)
-                        .statusCode(!IsServerExist ? CREATED.value() : BAD_REQUEST.value())
-                        .build()
-        );
+    public Server saveServer(@RequestBody @Valid Server server)  {
+       return serverService.create(server);
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Response> getServer(@PathVariable("id") Long id)  {
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(now())
-                        .data(Map.of("server",serverService.get(id)))
-                        .message("Server Retrieve")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build()
-        );
+    public Server getServer(@PathVariable("id") @Valid Long id)  {
+        return serverService.get(id);
     }
 
-    @DeleteMapping("/get/{id}")
-    public ResponseEntity<Response> deleteServer(@PathVariable("id") Long id)  {
-        return ResponseEntity.ok(
-                Response.builder()
-                        .timeStamp(now())
-                        .data(Map.of("deleted",serverService.delete(id)))
-                        .message("Server deleted")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build()
-        );
+    @GetMapping("/getServerById/{id}")
+    public Server getServerById(@PathVariable("id") @Valid Long id)  {
+        return serverService.get(id);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public boolean deleteServer(@PathVariable("id") Long id)  {
+        return serverService.delete(id);
+    }
+
+    @PutMapping("/update")
+    public Server updateServer(@RequestBody @Valid Server server)  {
+        return serverService.update(server);
     }
 
     @GetMapping(path = "/image/{fileName}",produces = IMAGE_JPEG_VALUE)

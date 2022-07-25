@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import rizzu82.com.infraserverinventory.enumeration.Status;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
 @Entity

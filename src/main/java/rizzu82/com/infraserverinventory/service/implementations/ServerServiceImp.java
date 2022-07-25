@@ -12,6 +12,7 @@ import rizzu82.com.infraserverinventory.model.Server;
 import rizzu82.com.infraserverinventory.repo.ServerRepo;
 import rizzu82.com.infraserverinventory.service.ServerService;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -51,7 +52,7 @@ public class ServerServiceImp implements ServerService {
     @Override
     public Server get(Long id) {
         log.info("find server by id : {}",id);
-        return serverRepo.findById(id).get();
+        return serverRepo.findById(id).orElse(null);
     }
 
     @Override
