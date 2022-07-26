@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rizzu82.com.infraserverinventory.enumeration.Status;
+import rizzu82.com.infraserverinventory.exception.ServerNotFoundException;
 import rizzu82.com.infraserverinventory.model.Response;
 import rizzu82.com.infraserverinventory.model.Server;
 import rizzu82.com.infraserverinventory.service.ServerService;
@@ -48,7 +49,7 @@ public class ServerResource {
         return serverService.create(server);
     }
     @GetMapping("/get/{id}")
-    public Server getServer(@PathVariable("id") @Valid Long id)  {
+    public Server getServer(@PathVariable("id") @Valid Long id)   {
         return serverService.get(id);
     }
 

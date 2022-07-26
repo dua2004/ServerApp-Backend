@@ -2,29 +2,23 @@ package rizzu82.com.infraserverinventory.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 import rizzu82.com.infraserverinventory.enumeration.Status;
 import rizzu82.com.infraserverinventory.exception.ServerNotFoundException;
-import rizzu82.com.infraserverinventory.model.Response;
 import rizzu82.com.infraserverinventory.model.Server;
 import rizzu82.com.infraserverinventory.repo.ServerRepo;
 import rizzu82.com.infraserverinventory.service.ServerService;
 
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
 import static java.time.LocalDateTime.now;
-import static org.springframework.http.HttpStatus.OK;
 
 @RequiredArgsConstructor
 @Service
@@ -59,20 +53,27 @@ public class ServerServiceImp implements ServerService {
     @Override
     public Server get(Long id) {
         log.info("find server by id : {}",id);
-        return serverRepo.findById(id).orElseThrow(() -> new ServerNotFoundException(id));
+        return serverRepo.findById(id).orElse(null);
     }
 
     @Override
     public Server update(Server server) {
         log.info("updating server : {}",server.getName());
+
         return serverRepo.save(server);
     }
 
     @Override
     public Boolean delete(Long id) {
         log.info("deleting server by ID : {}",id);
-        serverRepo.deleteById(id);
-        return true;
+            try {
+                serverRepo.deleteById(id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new ServerNotFoundException(ex.getMessage(),0);
+            }
     }
 
     private String setServerImageUrl() {
