@@ -1,22 +1,11 @@
 package rizzu82.com.infraserverinventory.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-
-public class ServerNotFoundException  extends RuntimeException {
+public class PersonException  extends RuntimeException {
     private Exception exception;
     private String errorCode;
     private String errorMessage;
-    public ServerNotFoundException(String errorCode,String errorMessage,Exception exception) {
+    public PersonException(String errorCode,String errorMessage,Exception exception) {
         super();
         this.errorCode=errorCode;
         this.errorMessage=errorMessage;
@@ -44,7 +33,7 @@ public class ServerNotFoundException  extends RuntimeException {
     public String getErrorMessage() {
         return errorMessage;
     }
-    public ServerNotFoundException(){
+    public PersonException(){
 
     }
 }

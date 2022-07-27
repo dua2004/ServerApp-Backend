@@ -53,7 +53,12 @@ public class ServerServiceImp implements ServerService {
     @Override
     public Server get(Long id) {
         log.info("find server by id : {}",id);
-        return serverRepo.findById(id).orElse(null);
+        Server server = serverRepo.findById(id).orElse(null);
+        if(server == null)
+        {
+            throw new ServerNotFoundException(id.toString(),"", new NullPointerException());
+        }
+        return server;
     }
 
     @Override
@@ -72,7 +77,7 @@ public class ServerServiceImp implements ServerService {
             }
             catch (Exception ex)
             {
-                throw new ServerNotFoundException(ex.getMessage(),0);
+                throw new ServerNotFoundException(id.toString(),ex.getMessage(),ex);
             }
     }
 
