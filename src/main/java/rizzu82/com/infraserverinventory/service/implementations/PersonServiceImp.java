@@ -27,7 +27,7 @@ public class PersonServiceImp implements PersonService {
     private final PersonRepo personRepo;
 
 
-    private String setServerImageUrl() {
+    private String setPersonProfileImageUrl() {
         String[] imageName = {"server1.jpg","server2.jpg","server3.jpg","server4.jpg"};
         return ServletUriComponentsBuilder.fromCurrentContextPath().path("/server/image/"+imageName[new Random().nextInt(4)]).toUriString();
     }
@@ -35,7 +35,7 @@ public class PersonServiceImp implements PersonService {
     @Override
     public Person create(Person person) {
         log.info("Saving a new server : {}",person.getName());
-        person.setProfilePicture(setServerImageUrl());
+        person.setProfilePicture(setPersonProfileImageUrl());
         return personRepo.save(person);
     }
 
