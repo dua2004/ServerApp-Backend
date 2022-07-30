@@ -2,6 +2,7 @@ package rizzu82.com.infraserverinventory.service.implementations;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -12,6 +13,7 @@ import rizzu82.com.infraserverinventory.model.Server;
 import rizzu82.com.infraserverinventory.repo.PersonRepo;
 import rizzu82.com.infraserverinventory.service.PersonService;
 
+import javax.persistence.Convert;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Random;
@@ -34,9 +36,15 @@ public class PersonServiceImp implements PersonService {
 
     @Override
     public Person create(Person person) {
-        log.info("Saving a new server : {}",person.getName());
+        log.info("Add a new Person : {}",person.getName());
         person.setProfilePicture(setPersonProfileImageUrl());
-        return personRepo.save(person);
+        try {
+            return personRepo.save(person);
+        }
+        catch (Exception ex)
+        {
+            throw new PersonException(person.getEmailAddress(),ex.getMessage(),ex);
+        }
     }
 
     @Override
@@ -70,8 +78,13 @@ public class PersonServiceImp implements PersonService {
     @Override
     public Person update(Person person) {
         log.info("updating person : {}",person.getName());
-
-        return personRepo.save(person);
+        try {
+            return personRepo.save(person);
+        }
+        catch (Exception ex)
+        {
+            throw new PersonException(person.getId().toString(),ex.getMessage(),ex);
+        }
     }
 
     @Override

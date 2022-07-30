@@ -1,6 +1,7 @@
 package rizzu82.com.infraserverinventory.exception;
 
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -54,6 +57,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+
     @ExceptionHandler(ServerNotFoundException.class)
     protected ResponseEntity<Object> handleServerNotFound(ServerNotFoundException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
@@ -80,8 +84,15 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         if(ex.getException() instanceof EmptyResultDataAccessException || ex.getException() instanceof NullPointerException)
         {
             body.put("timestamp", LocalDateTime.now());
-            body.put("message", String.format("Peerson is not found for id "+ex.getErrorCode()));
+            body.put("message", String.format("Person is not found for id "+ex.getErrorCode()));
             body.put("status", HttpStatus.NOT_FOUND.value());
+        }
+        else if(ex.getException() instanceof DataIntegrityViolationException || ex.getException() instanceof SQLIntegrityConstraintViolationException
+                || ex.getException() instanceof ConstraintViolationException)
+        {
+            body.put("timestamp", LocalDateTime.now());
+            body.put("message", String.format("Person with email address "+ex.getErrorCode() + " already exists"));
+            body.put("status", HttpStatus.BAD_REQUEST.value());
         }
         else {
             body.put("timestamp", LocalDateTime.now());
@@ -94,5 +105,14 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Object> handleRunTimeException(RuntimeException e) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", e.getMessage());
+        body.put("status", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 
 }
